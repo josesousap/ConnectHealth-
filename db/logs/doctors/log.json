@@ -1,0 +1,10 @@
+{
+  "id": [
+    {
+      "id": "user id",
+      "date": "dd/mm/yyyy",
+      "hours": "12:00",
+      "action": "Example log."
+    }
+  ]
+}

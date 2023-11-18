@@ -1,0 +1,17 @@
+[
+  {
+    "first-name": "d",
+    "last-name": "d",
+    "age": 120,
+    "weight": 30,
+    "height": 31,
+    "crm": "22/12390",
+    "password": 123,
+    "schedule": {
+      "monday": {
+        "08:00": [],
+        "14:00": []
+      }
+    }
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "id": [
+    {
+      "id": "user id",
+      "date": "dd/mm/yyyy",
+      "hours": "12:00",
+      "action": "Example log."
+    }
+  ],
+  "12312312312": [
+    {
+      "id": "12312312312",
+      "date": "18/11/2023",
+      "hours": "18:08",
+      "action": "Login efetuado"
+    },
+    {
+      "id": "12312312312",
+      "date": "18/11/2023",
+      "hours": "18:08",
+      "action": "Recuperou dados do paciente"
+    },
+    {
+      "id": "12312312312",
+      "date": "18/11/2023",
+      "hours": "18:08",
+      "action": "Recuperou exames antigos do paciente"
+    },
+    {
+      "id": "12312312312",
+      "date": "18/11/2023",
+      "hours": "18:08",
+      "action": "Recuperou laudos do paciente"
+    }
+  ]
+}

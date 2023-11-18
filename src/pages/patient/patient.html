@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <title>Home</title>
+
+    <style>
+        main {
+            text-shadow: 2px 1px 3px black;
+        }
+        button, a {
+            text-shadow: none;
+        }
+        .container .logs div {
+            text-shadow: none;
+        }
+    </style>
+</head>
+<body style="background-image: url('patient-bg.png'); background-repeat: no-repeat; background-size: 2000px;">
+    <div class="container text-center">
+        <header>
+            <a class="btn btn-danger btn-sm mt-2" href="/logout">Logout</a>
+            
+            <h1>Painel do Paciente</h1>
+
+            <div class="container">
+                <button class="btn btn-primary" onclick="showContent('info')">Dados pessoais</button>
+                <button class="btn btn-primary" onclick="showContent('records')">Registros</button>
+                <button class="btn btn-primary" onclick="showContent('file')">Enviar arquivos</button>
+            </div>
+            
+        </header>
+        <main class="text-white">
+            <section class="personal-info mt-3">
+                <h2>Seus Dados Pessoais - <button type="button" class="btn btn-danger mb-2" data-bs-toggle="modal" data-bs-target="#deletePatientModal">apagar conta</button></h2>
+                
+                <p id="first-name">Nome: </p>
+                
+                <p id="last-name">Sobrenome: </p>
+
+                <p id="age">Idade: </p>
+
+                <p id="weight">peso (kg): </p>
+
+                <p id="height">Altura (cm): </p>
+                
+                <p id="exercise">Faz exercícios: </p>
+                
+                <p id="cpf">CPF: </p>
+            </section>
+            <section class="medical-records d-none">
+                <h2>Registros Médicos (Exames)</h2>
+                <div class="container w-50">
+                    <ul id="exams" class="list-group">
+                    </ul>
+                </div>
+
+                <h2>Laudos Médicos</h2>
+                <div class="container w-50">
+                    <ul id="reports" class="list-group">
+                    </ul>
+                </div>
+
+                <h2>Registros Médicos (Antigos)</h2>
+                <div class="container w-50">
+                    <ul id="old-exams" class="list-group">
+                    </ul>
+                </div>
+            </section>
+            
+            <section class="upload-file d-none">
+                <h2>Enviar Arquivo</h2>
+                <input class="form-control w-auto m-auto" type="file" id="oldexam-upload">
+                <button class="btn btn-primary mt-2" id="upload-button" onclick="sendOldExam()">Enviar</button>
+<!-- 
+                <form class="upload-file m-3 d-flex flex-column text-center" enctype="multipart/form-data" method="post" action="/patient/upload/oldexam">
+                    <h2>Enviar Arquivo</h2>
+                    <input id="exam-file" name="exam-file" type="file">
+                    <input type="text" name="cpf" id="patient-cpf" class="visually-hidden">
+                    <button type="submit" class="btn btn-primary m-2">Enviar</button>
+                </form> -->
+            </section>
+
+            <section class="logs p-5">
+                <a href="schedule" class="btn btn-light" role="button">Agendar Consulta</a>
+                <button class="btn btn-primary" onclick="getUserLogs()">Recuperar relatórios</button>
+                <div class="container">
+                    <ul id="logs" class="list-group">
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Deletar paciente -->
+    <div class="modal fade" id="deletePatientModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deletePatientLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="deletePatient()">Apagar conta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let info = document.querySelector('.personal-info')
+        let records = document.querySelector('.medical-records')
+        let file = document.querySelector('.upload-file')
+
+        function showContent(name) {
+            if (name == 'info') {
+                info.classList.remove('d-none')
+                records.classList.contains('d-none')? '' : records.classList.add('d-none')
+                file.classList.contains('d-none')? '' : file.classList.add('d-none')
+            } else if (name == 'records') {
+                records.classList.remove('d-none')
+                info.classList.contains('d-none')? '' : info.classList.add('d-none')
+                file.classList.contains('d-none')? '' : file.classList.add('d-none')
+            } else if (name == 'file') {
+                file.classList.remove('d-none')
+                records.classList.contains('d-none')? '' : records.classList.add('d-none')
+                info.classList.contains('d-none')? '' : info.classList.add('d-none')
+            } 
+        }
+
+        
+
+        function getPatientData() {   
+            fetch('/getPatient').then(data => {
+                data.json().then(user => {
+                    document.getElementById("first-name").innerText += " " + user["first-name"]
+                    document.getElementById("last-name").innerText += " " + user["last-name"]
+                    document.getElementById("age").innerText += " " + user.age
+                    document.getElementById("weight").innerText += " " + user.weight
+                    document.getElementById("height").innerText += " " + user.height
+                    document.getElementById("exercise").innerText += " " + user.exercise? " Sim" : " Não"
+                    document.getElementById("cpf").innerText += " " + user.cpf
+                })
+            })
+        }
+
+        function getExams() {
+            fetch('/getExams').then(data => {
+                data.json().then(exams => {
+                    for(let exam of exams)
+                        document.getElementById('exams').innerHTML += `<li class="list-group-item"><a href="/doctor/download/exam/${exam['exam-name']}" >${exam['exam-name']}</a></li>`
+                })
+            });
+        }
+        function getOldExams() {
+            fetch('/getOldExams').then(data => {
+                data.json().then(exams => {
+                    for(let exam of exams)
+                        document.getElementById('old-exams').innerHTML += `<li class="list-group-item"><a href="/doctor/download/oldexam/${exam['exam-name']}" >${exam['exam-name']}</a></li>`
+                })
+            });
+        }
+        function getReports() {
+            fetch('/getReports').then(data => {
+                data.json().then(reports => {
+                    for(let report of reports)
+                        document.getElementById('reports').innerHTML += `<li class="list-group-item"><a href="/doctor/download/report/${report['report-name']}" >${report['report-name']}</a></li>`
+                })
+            });
+        }
+        function getUserLogs() {
+            // Obtém a data de 6 meses atrás a partir de hoje
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            
+            fetch('/getUserLogs').then(data => {
+                data.json().then(logs => {
+                    document.getElementById('logs').innerHTML = ""
+                    for(let log of logs) {
+                        let yearMonthDay = log.date.split("/").reverse().join("-");
+                        console.log(yearMonthDay)
+                        if (new Date(yearMonthDay) >= sixMonthsAgo)
+                            document.getElementById('logs').innerHTML += `<li class="list-group-item"><p>${log.date} - ${log.hours} </p><p>Action: ${log.action}</p></li>`
+                    }
+                })
+            });
+        }
+
+        function sendOldExam() {
+            var input = document.querySelector('#oldexam-upload')
+
+            var data = new FormData()
+            data.append('oldexam-file', input.files[0])
+
+            fetch('/patient/upload/oldexam', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                },
+                body: data
+            })
+        }
+        
+        function deletePatient() {
+            fetch('/patient/', {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }).then(data => {
+                data.json().then(status => {
+                    if (status.code == 200)
+                        window.location.reload()
+                    else
+                        console.log(status)
+                })
+            })
+        }
+
+
+        getPatientData()
+        getExams()
+        getOldExams()
+        getReports()
+    </script>
+</body>
+</html>

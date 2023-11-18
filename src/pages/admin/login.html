@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <title>Admin</title>
+</head>
+<body>
+    <header class="container">
+        <a href="/" class="btn btn-outline-secondary mt-2">Voltar</a>
+    </header>
+    <div class="container">
+
+        <form method="post" action="/admin" class="loginForms d-flex flex-column align-items-center">
+            <!-- <div class="mb-3 w-sm-100">
+              <label for="crm" class="form-label">ID</label>
+              <input type="text" name="crm" class="form-control" id="id" maxlength="10" aria-describedby="idHelp">
+            </div> -->
+            <div class="mb-3 w-sm-100">
+              <label for="password" class="form-label">Senha</label>
+              <input type="password" name="password" class="form-control" id="password">
+            </div>
+            <button type="submit" class="btn btn-primary m-2">Entrar</button>
+        </form>
+    </div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

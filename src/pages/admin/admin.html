@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    
+    <title>Admin Panel</title>
+</head>
+<body style="background-image: url('admin-bg.png');">
+    <header class="container text-center">
+        <a class="btn btn-danger btn-sm mt-2" href="/logout">Logout</a>
+        
+        <h1 class="h1">Painel de Administração</h1>
+    </header>
+    <nav class="container d-flex justify-content-between align-items-center">
+        <!-- <ul>
+            <li><a href="#users">Gerenciar Usuários</a></li>
+            <li><a href="#doctors">Gerenciar Médicos</a></li>
+            <li><a href="#info">Editar Informações do Site</a></li>
+            <li><a href="#enviar-arquivo">Enviar Arquivo para Paciente</a></li>
+        </ul> -->
+
+        <div>
+            <a href="/doctor/signup" class="btn btn-secondary">Cadastrar médico</a>
+        </div>
+    </nav>
+    <main class="container text-center">
+        <section id="users">
+            <h2>Gerenciar Usuários</h2>
+            <div id="users-container">
+                  <div id="carouselPatient" class="carousel slide bg-dark rounded-pill">
+                    <div id="carouselItems-patient" class="carousel-inner">
+                        
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselPatient" data-bs-slide="prev">
+                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselPatient" data-bs-slide="next">
+                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Next</span>
+                    </button>
+                  </div>
+            </div>
+        </section>
+
+        <section id="doctors">
+            <h2>Gerenciar Médicos</h2>
+
+            <div id="doctors-container">
+                <div id="carouselDoctor" class="carousel slide">
+                    <div id="carouselItems-doctor" class="carousel-inner bg-dark rounded-pill">
+                        
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselDoctor" data-bs-slide="prev">
+                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselDoctor" data-bs-slide="next">
+                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                      <span class="visually-hidden">Next</span>
+                    </button>
+                  </div>
+            </div>
+        </section>
+
+        <section class="logs">
+            <button class="btn btn-primary m-5" onclick="getLogs()">Recuperar relatórios</button>
+            <div class="container">
+                <ul id="logs" class="list-group">
+                </ul>
+            </div>
+        </section>
+    </main>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="patientModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="patientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="patientModalLabel">Paciente - <button type="button" class="btn btn-danger"data-bs-toggle="modal" data-bs-target="#deletePatientModal" data-cpf>Deletar</button></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-load-effect" class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <form method="post" class="signup-form row visually-hidden" id="signup-form">
+                    <label for="first-name">Nome:</label>
+                    <input class="input-group-text" type="text" id="first-name" name="first-name" required>
+                    
+                    <label for="last-name">Sobrenome:</label>
+                    <input class="input-group-text" type="text" id="last-name" name="last-name" required>
+
+                    <label for="age">Idade:</label>
+                    <input class="input-group-text" type="number" id="age" name="age" required>
+
+                    <label for="weight">Peso (kg):</label>
+                    <input class="input-group-text" type="number" id="weight" name="weight" step="0.01" required>
+
+                    <label for="height">Altura (cm):</label>
+                    <input class="input-group-text" type="number" id="height" name="height" required>
+                    
+                    <label for="cpf">CPF:</label>
+                    <input class="input-group-text" type="text" id="cpf" name="cpf" maxlength="11" required>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div id="update-patient-load" class="text-center visually-hidden">
+                    <div class="spinner-border" role="status">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="sendUserData(true)">Enviar</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal DOCTOR -->
+    <div class="modal fade" id="staticBackdropDoctor" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabelDoctor" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabelDoctor">Médico - <button type="button" class="btn btn-danger"data-bs-toggle="modal" data-bs-target="#deleteDoctorModal" data-cpf>Deletar</button></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-load-effect-d" class="text-center">
+                    <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <form method="post" class="signup-form row visually-hidden" id="signup-form-d">
+                    <label for="first-name-d">Nome:</label>
+                    <input class="input-group-text" type="text" id="first-name-d" name="first-name" required>
+                    
+                    <label for="last-name-d">Sobrenome:</label>
+                    <input class="input-group-text" type="text" id="last-name-d" name="last-name" required>
+
+                    <label for="age-d">Idade:</label>
+                    <input class="input-group-text" type="number" id="age-d" name="age" required>
+
+                    <label for="weight-d">Peso (kg):</label>
+                    <input class="input-group-text" type="number" id="weight-d" name="weight" step="0.01" required>
+
+                    <label for="height-d">Altura (cm):</label>
+                    <input class="input-group-text" type="number" id="height-d" name="height" required>
+                    
+                    <label for="crm">CRM:</label>
+                    <input class="input-group-text" type="text" id="crm" name="crm" maxlength="11" required>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div id="update-doctor-load" class="text-center visually-hidden">
+                    <div class="spinner-border" role="status">
+                    </div>
+                </div>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="sendUserData(false)">Enviar</button>
+            </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal Deletar paciente -->
+    <div class="modal fade" id="deletePatientModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deletePatientLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="deletePatient()">Apagar conta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Deletar medico -->
+    <div class="modal fade" id="deleteDoctorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteDoctorLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteDoctor()">Apagar conta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script>        
+
+        function createUserCards(data) {
+            let cards = ''
+
+            for (let user of Object.values(data)) {
+                
+                cards += (`
+                <div class="user-card card border-info m-2" style="width: auto; min-width: 200px">
+                    <div class="card-header"><div class="form-text">Nome completo</div>  ${user['first-name']} ${user['last-name']}</div>
+                    <div class="card-body">
+                        <h5 class="card-title">${user['first-name']}</h5>
+
+                        ${user?.cpf ? '<div class="form-text">CPF</div>' : '<div class="form-text">CRM</div>'}
+                        <p class="card-text">${user.cpf?? user.crm}</p>
+                        </div>
+                        ${
+                            Object.hasOwn(user, 'cpf') ?
+                            (`<button type="button" onclick="getPatientData('${user.cpf}')" class="btn btn-primary mb-2 m-auto" data-bs-toggle="modal" data-bs-target="#patientModal">Editar</button>`)
+                            :
+                            (`<button type="button" onclick="getDoctorData('${user.crm}')" class="btn btn-primary mb-2 m-auto" data-bs-toggle="modal" data-bs-target="#staticBackdropDoctor">Editar</button>`)
+                        }
+                </div>
+                `)
+            }
+
+            return cards
+        }
+
+        function sliceIntoChunks(arr, chunkSize) {
+            var x = window.matchMedia("(max-width: 600px)")
+            if (x.matches) chunkSize = 1
+            var res = [];
+            for (let i = 0; i < arr.length; i += chunkSize) {
+                const chunk = arr.slice(i, i + chunkSize);
+                res.push(chunk);
+            }
+            return res;
+        }
+
+        fetch('/getPatients').then((data) => {
+            data.json().then(data => {
+                let firstCarousel = true
+                let arr = sliceIntoChunks(data, 4)
+                for (let users of arr) {
+                    document.getElementById('carouselItems-patient').innerHTML += `
+                          <div class="carousel-item">
+                            <div class="d-flex justify-content-center gap-2">
+                               ${createUserCards(users)}
+                            </div>
+                          </div>
+                        `
+                    if (firstCarousel) {
+                        firstCarousel = false
+                        document.querySelector('#carouselItems-patient .carousel-item').classList.add('active')
+                    }
+                }
+            })
+        })
+
+        fetch('/getDoctors').then((data) => {
+            data.json().then(data => {
+                let firstCarousel = true
+                let arr = sliceIntoChunks(data, 4)
+                for (let users of arr) {
+                    document.getElementById('carouselItems-doctor').innerHTML += `
+                          <div class="carousel-item">
+                            <div class="d-flex justify-content-center gap-2">
+                               ${createUserCards(users)}
+                            </div>
+                          </div>
+                        `
+                    if (firstCarousel) {
+                        firstCarousel = false
+                        document.querySelector('#carouselItems-doctor .carousel-item').classList.add('active')
+                    }
+                }
+            })
+        })
+
+        function getPatientData(cpf) {
+            
+            fetch('/getPatient/'+cpf).then(data => {
+                data.json().then(user => {
+                    hideLoading()
+
+                    document.getElementById("first-name").value = user["first-name"]
+                    document.getElementById("last-name").value = user["last-name"]
+                    document.getElementById("age").value = user.age
+                    document.getElementById("weight").value = user.weight
+                    document.getElementById("height").value = user.height
+                    document.getElementById("cpf").value = user.cpf
+
+                    document.querySelector("#patientModalLabel > button").dataset.cpf = user.cpf
+                })
+            })
+        }
+
+        function getDoctorData(crm) {
+            crm = crm.replaceAll('/', '-')
+            fetch('/getDoctor/'+crm).then(data => {
+                data.json().then(user => {
+                    hideLoading(true)
+
+                    document.getElementById("first-name-d").value = user["first-name"]
+                    document.getElementById("last-name-d").value = user["last-name"]
+                    document.getElementById("age-d").value = user.age
+                    document.getElementById("weight-d").value = user.weight
+                    document.getElementById("height-d").value = user.height
+                    document.getElementById("crm").value = user.crm
+
+                    document.querySelector("#staticBackdropLabelDoctor > button").dataset.crm = user.crm
+                })
+            })
+        }
+        
+        function sendUserData(isCpf) {
+            if (isCpf) {
+                let loadElement = document.querySelector('#update-patient-load')
+                loadElement.classList.remove('visually-hidden')
+    
+                let user = {
+                    "first-name": document.getElementById("first-name").value,
+                    "last-name": document.getElementById("last-name").value,
+                    "age": document.getElementById("age").value,
+                    "weight": document.getElementById("weight").value,
+                    "height": document.getElementById("height").value,
+                    "cpf": document.getElementById("cpf").value
+                }
+                fetch('/patient', {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(user)
+                }).then(data => {
+                    data.json().then(data => {
+                        loadElement.classList.add('visually-hidden')
+                    })
+                })
+            }else {
+                let loadElement = document.querySelector('#update-doctor-load')
+                loadElement.classList.remove('visually-hidden')
+    
+                let user = {
+                    "first-name": document.getElementById("first-name-d").value,
+                    "last-name": document.getElementById("last-name-d").value,
+                    "age": document.getElementById("age-d").value,
+                    "weight": document.getElementById("weight-d").value,
+                    "height": document.getElementById("height-d").value,
+                    "crm": document.getElementById("crm").value
+                }
+                fetch('/doctor', {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(user)
+                }).then(data => {
+                    data.json().then(data => {
+                        loadElement.classList.add('visually-hidden')
+                    })
+                })
+            }
+        }
+
+        function getLogs() {
+            // Obtém a data de 6 meses atrás a partir de hoje
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            
+            fetch('/getUserLogs').then(data => {
+                data.json().then(logs => {
+                    document.getElementById('logs').innerHTML = ""
+                    for(let log of logs) {
+                        let yearMonthDay = log.date.split("/").reverse().join("-");
+                        console.log(yearMonthDay)
+                        if (new Date(yearMonthDay) >= sixMonthsAgo)
+                            document.getElementById('logs').innerHTML += `<li class="list-group-item"><p>${log.date} - ${log.hours} </p><p>ID: ${log.id} Action: ${log.action}</p></li>`
+                    }
+                })
+            });
+        }
+
+        function deletePatient() {
+            var cpf = document.querySelector("#patientModalLabel > button").dataset.cpf
+
+            fetch('/patient', {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({cpf})
+            }).then(data => {
+                data.json().then(status => {
+                    console.log(status)
+                    window.location.reload()
+                })
+            })
+        }
+        
+        function deleteDoctor() {
+            var crm = document.querySelector("#staticBackdropLabelDoctor > button").dataset.crm
+
+            fetch('/doctor', {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({crm})
+            }).then(data => {
+                data.json().then(status => {
+                    console.log(status)
+                    window.location.reload()
+                })
+            })
+        }
+        
+        
+        // Efeito de loading dentro da modal
+        const hideLoading = (isDoctor) => {
+            if (!isDoctor) {
+                document.querySelector('#signup-form').classList.remove('visually-hidden')
+                document.querySelector('#modal-load-effect').classList.add('visually-hidden')
+            } else {
+                document.querySelector('#signup-form-d').classList.remove('visually-hidden')
+                document.querySelector('#modal-load-effect-d').classList.add('visually-hidden')
+            }
+        }
+        document.getElementById('patientModal').addEventListener('hidden.bs.modal', event => {
+            document.querySelector('#signup-form').classList.add('visually-hidden')
+            document.querySelector('#modal-load-effect').classList.remove('visually-hidden')
+        })
+        document.getElementById('staticBackdropDoctor').addEventListener('hidden.bs.modal', event => {
+            document.querySelector('#signup-form-d').classList.add('visually-hidden')
+            document.querySelector('#modal-load-effect-d').classList.remove('visually-hidden')
+        })
+    </script>
+</body>
+</html>

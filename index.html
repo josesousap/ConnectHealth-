@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <title>Bem Vindo ao ConnectHealth</title>
+
+    <link rel="icon" type="image/png" href="/favicon-32x32.png">
+    <style>
+        main, h1 {
+            text-shadow: 2px 1px 3px black;
+        }
+        button, a {
+            text-shadow: none;
+        }
+        .admin-btn {
+            font-weight: bold;
+            text-shadow: 2px 1px 3px black;
+        }
+    </style>
+</head>
+<body style="background-image: url('cool.png'); background-repeat: no-repeat; background-size: 2000px;">
+    <header class="p-5">
+        <div class="header-content">
+            <div class="container d-md-flex justify-content-around text-center">
+                <a href="patient" class="btn btn-primary btn-lg" role="button">Pacientes</a>
+                <h1 class="text-white">ConnectHealth</h1>
+                <a href="doctor" class="btn btn-secondary btn-lg" role="button">Médicos</a>
+            </div>
+        </div>
+    </header>
+    <main class="container text-white">
+        <section>
+            
+            <p>Seja bem-vindo, sua jornada para o bem-estar começa agora! Somos os maiores apoiadores para o seu estilo de vida saudável, fornecendo recursos para alcançar suas metas de saúde pessoais. Explore nosso site e junte-se a nós nessa jornada rumo ao bem-estar.</p>
+            
+            
+            <div class="container text-center">
+                <a href="patient/signup" class="signup-button btn btn-primary btn-lg">CADASTRE-SE</a>
+            </div>
+
+            <a href="admin" class="admin-btn btn btn-lg text-danger position-fixed start-50 bottom-0 translate-middle" role="button">Administrador</a>
+        </section>
+    </main>
+    <script src="js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

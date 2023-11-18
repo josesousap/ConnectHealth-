@@ -1,0 +1,23 @@
+{
+  "name": "conecthealth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js --ignore db/*.json --ignore db/logs/* --ignore db/patient/*"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^5.3.2",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "jspdf": "^2.5.1",
+    "lowdb": "^6.0.1",
+    "multer": "^1.4.5-lts.1",
+    "nodemon": "^3.0.1"
+  }
+}

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <title>Médicos</title>
+
+    <style>
+        main {
+            text-shadow: 2px 1px 3px black;
+        }
+        button, a {
+            text-shadow: none;
+        }
+        .container .logs div, .medical-records div {
+            text-shadow: none;
+        }
+        #patient-search-input {
+            width: 150px;
+        }
+
+        #toast-div {
+            width: 300px;
+            top: 20%;
+            left: 50%;
+        }
+    </style>
+</head>
+<body style="background-image: url('doctor-bg.png'); background-repeat: no-repeat; background-size: 2000px;">
+    <div class="container text-center">
+        <header>
+            <a class="btn btn-danger btn-sm mt-2" href="/logout">Logout</a>
+            
+            <h1>Painel do Médico - <button type="button" class="btn btn-danger mb-2" data-bs-toggle="modal" data-bs-target="#deleteDoctorModal">apagar conta</button></h1>
+
+            <div class="container">
+                <button class="btn btn-primary" onclick="showContent('serch')">Pesquisar</button>
+                <button class="btn btn-primary" onclick="showContent('schedule')">Agenda</button>
+                <button class="btn btn-primary" onclick="showContent('logs')">Relatórios</button>
+            </div>
+        </header>
+        <main class="text-white">
+            <section class="patient-search">
+                <h2>Pesquisar Paciente</h2>
+                <input type="text" id="patient-search-input" placeholder="CPF do paciente" maxlength="11" onkeypress="getPatientData(event)"
+                    class="form-control m-auto mb-2">
+                <button class="btn btn-primary" id="search-button" onclick="getPatientData({key: 'Enter'})">Pesquisar</button>
+            </section>
+            <section class="patient-details">
+                <h2>Dados do Paciente</h2>
+                
+                <div id="patient-infos"></div>
+            </section>
+
+            <div class="container scheduler d-none">
+                <h1>Definir Horários Disponíveis</h1>
+    
+                <section class="schedule-form">
+                    <h4>Defina os Horários Disponíveis para Agendamento</h2>
+                    <form method="post" action="doctor/schedule" onsubmit="sendSchedule()" class="lh-lg">
+                        <label for="day">Dia da Semana:</label>
+                        <select class="form-control w-auto m-auto" id="day" name="day" required>
+                            <option value="monday">Segunda-feira</option>
+                            <option value="tuesday">Terça-feira</option>
+                            <option value="wednesday">Quarta-feira</option>
+                            <option value="thursday">Quinta-feira</option>
+                            <option value="friday">Sexta-feira</option>
+                        </select>
+    
+                        <label for="time">Horário do dia:</label>
+                        <select class="form-control w-auto m-auto" id="time" name="time" required>
+                            <option value="08:00">08:00 - 12:00</option>
+                            <option value="14:00">14:00 - 18:00</option>
+                        </select>
+                        <br>
+    
+                        <button class="btn btn-sm btn-primary" type="submit">Definir Horários</button>
+                    </form>
+                </section>
+            </div>
+    
+            <div class="container logs d-none">
+                <button class="btn btn-primary m-5" onclick="getUserLogs()">Recuperar relatórios</button>
+                <div class="container">
+                    <ul id="logs" class="list-group">
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        
+    </div>
+
+    <div id="toast-div" aria-live="polite" aria-atomic="true" class="bg-dark position-fixed bd-example-toasts translate-middle">
+        <div class="toast-container p-3" id="toastPlacement">
+          <div class="toast bg-secondary" data-bs-delay="1500">
+            <div class="toast-header">
+              <!-- <img src="..." class="rounded me-2" alt="..."> -->
+              <strong class="me-auto">Bootstrap</strong>
+              <small>Agora</small>
+            </div>
+            <div class="toast-body">
+              Hello, world! This is a toast message.
+            </div>
+          </div>
+        </div>
+    </div>
+
+
+    <!-- ReportModal -->
+    <div class="modal fade" id="staticBackdropReport" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Paciente</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            <!-- <div class="modal-body">
+                <div id="modal-load-effect" class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div> -->
+
+                <form method="post" onsubmit="sendReport()" action="/doctor/upload/report">
+                    <div class="m-3">
+                        <label for="report-text" class="form-label">Laudo Médico:</label>
+                        <textarea class="form-control" id="report-text" name="report" rows="3"></textarea>
+                    </div>
+
+                    <input type="text" name="cpf" id="patient-cpf2" class="visually-hidden">
+                    <button class="btn btn-primary" type="submit">Salvar Laudo</button>
+                </form>
+                
+                <div class="modal-footer">
+                    <div id="report-load" class="text-center visually-hidden">
+                        <div class="spinner-border" role="status">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <!-- <button type="button" class="btn btn-primary" onclick="1111111111">Enviar</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ExamModal -->
+    <div class="modal fade" id="exam-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exam-modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exam-modalLabel">Paciente</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            
+                <form class="upload-file m-3 d-flex flex-column text-center" enctype="multipart/form-data" method="post" onsubmit="sendExam()" action="/doctor/upload/exam">
+                    <h2>Enviar Arquivo</h2>
+                    <input id="exam-file" name="exam-file" type="file" required>
+                    <input type="text" name="cpf" id="patient-cpf" class="visually-hidden">
+                    <button type="submit" class="btn btn-primary m-2">Enviar</button>
+                </form>
+                
+                <div class="modal-footer">
+                    <div id="exam-load" class="text-center visually-hidden">
+                        <div class="spinner-border" role="status">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Deletar medico -->
+    <div class="modal fade" id="deleteDoctorModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteDoctorLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteDoctor()">Apagar conta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+    
+    
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const toast = new bootstrap.Toast(document.querySelector("#toastPlacement > div"))
+        const examModal = new bootstrap.Modal(document.getElementById('exam-modal'))
+        const reportModal = new bootstrap.Modal(document.getElementById('staticBackdropReport'))
+
+        var toastHeader = document.querySelector("#toastPlacement > div .toast-header")
+        var toastBody = document.querySelector("#toastPlacement > div .toast-body")
+
+        let pSearch = document.querySelector('.patient-search')
+        let pDetails = document.querySelector('.patient-details')
+        let scheduler = document.querySelector('.scheduler')
+        let logs = document.querySelector('.logs')
+        
+        function showContent(name) {
+            if (name == 'serch') {
+                pSearch.classList.remove('d-none')
+                pDetails.classList.remove('d-none')
+                scheduler.classList.contains('d-none')? '' : scheduler.classList.add('d-none')
+                logs.classList.contains('d-none')? '' : logs.classList.add('d-none')
+            } else if (name == 'schedule') {
+                scheduler.classList.remove('d-none')
+                pSearch.classList.contains('d-none')? '' : pSearch.classList.add('d-none')
+                pDetails.classList.contains('d-none')? '' : pDetails.classList.add('d-none')
+                logs.classList.contains('d-none')? '' : logs.classList.add('d-none')
+            } else if (name == 'logs') {
+                logs.classList.remove('d-none')
+                pSearch.classList.contains('d-none')? '' : pSearch.classList.add('d-none')
+                pDetails.classList.contains('d-none')? '' : pDetails.classList.add('d-none')
+                scheduler.classList.contains('d-none')? '' : scheduler.classList.add('d-none')
+            } 
+        }
+        
+        function getPatientData(event) { 
+            let cpf = document.getElementById('patient-search-input').value
+            
+            if(event?.key != "Enter")
+                return 
+
+            document.getElementById("patient-infos").innerHTML = "Loading..."
+        
+            fetch('/getPatient/'+cpf).then(data => {
+                data.json().then(user => {
+                    if (user?.err) {
+                        document.getElementById("patient-infos").innerHTML = `<p>Paciente não encontrado</p>`
+                    } else {
+                        document.getElementById("patient-infos").innerHTML =
+                        `
+                        <div class="patient-info">
+                            <p id="first-name">Nome: ${user["first-name"]}</p>
+                            
+                            <p id="last-name">Sobrenome: ${user["last-name"]}</p>
+            
+                            <p id="age">Idade: ${user.age}</p>
+            
+                            <p id="weight">peso (kg): ${user.weight}</p>
+            
+                            <p id="height">Altura (cm): ${user.height}</p>
+                            
+                            <p id="cpf">CPF: ${user.cpf}</p>
+                        </div>
+
+                        <div class="medical-records">
+                            <p class="h4">Registros Médicos</p>
+                            <div class="container w-50">
+                                <ul id="exams" class="list-group">
+                                </ul>
+                            </div>
+
+                            <p class="h4">Laudos Médicos</p>
+                            <div class="container w-50">
+                                <ul id="reports" class="list-group">
+                                </ul>
+                            </div>
+
+                            <p class="h4">Registros Médicos (Antigos)</p>
+                            <div class="container w-50">
+                                <ul id="old-exams" class="list-group">
+                                </ul>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#exam-modal">Enviar exame</button>
+                        <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#staticBackdropReport" onclick="changeModalName('${user["first-name"] + ' ' + user["last-name"]}')">Emitir laudo</button>
+                        `
+                        document.getElementById('patient-cpf').value = user.cpf
+                        document.getElementById('patient-cpf2').value = user.cpf
+                        
+                        if(user.exams.length > 0)
+                            for(exam of user.exams)
+                                document.getElementById('exams').innerHTML += `<li class="list-group-item"><a href="/doctor/download/exam/${exam['exam-name']}" >${exam['exam-name']}</a></li>`
+                        else
+                            document.getElementById('exams').innerHTML += `<li class="list-group-item">Sem exames.</li>`
+
+                        if(user.reports.length > 0)
+                            for(report of user.reports)
+                                document.getElementById('reports').innerHTML += `<li class="list-group-item"><a href="/doctor/download/report/${report['report-name']}" >${report['report-name']}</a></li>`
+                        else
+                            document.getElementById('reports').innerHTML += `<li class="list-group-item">Sem laudos.</li>`
+                        
+                        if(user['old-exams'].length > 0)
+                            for(oldexam of user['old-exams'])
+                                document.getElementById('old-exams').innerHTML += `<li class="list-group-item"><a href="/doctor/download/oldexam/${oldexam['exam-name']}" >${oldexam['exam-name']}</a></li>`
+                        else
+                            document.getElementById('old-exams').innerHTML += `<li class="list-group-item">Sem exames antigos.</li>`
+                    }
+                })
+            })
+        }
+
+        function getUserLogs() {
+            // Obtém a data de 6 meses atrás a partir de hoje
+            const sixMonthsAgo = new Date();
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+            fetch('/getUserLogs').then(data => {
+                data.json().then(logs => {
+                    document.getElementById('logs').innerHTML = ""
+                    for(let log of logs) {
+                        let yearMonthDay = log.date.split("/").reverse().join("-");
+                        if (new Date(yearMonthDay) >= sixMonthsAgo)
+                            document.getElementById('logs').innerHTML += `<li class="list-group-item"><p>${log.date} - ${log.hours} </p><p>Action: ${log.action}</p></li>`
+                    }
+                })
+            });
+        }
+
+        function sendExam() {
+            event.preventDefault()
+            
+            var input = document.querySelector('#exam-file')
+            var inputCpf = document.querySelector('#patient-cpf')
+
+            var data = new FormData()
+            data.append('exam-file', input.files[0])
+            data.append('cpf', inputCpf.value)
+
+            fetch('/doctor/upload/exam', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                },
+                body: data
+            }).then(data => {
+                data.json().then(status => {
+                    toastHeader.textContent = inputCpf.value
+                    toastBody.textContent = status.text
+                    
+                    toast.show()
+                    examModal.hide()
+                })
+            })
+        }
+        
+        function sendReport() {
+            event.preventDefault()
+            
+            var reportText = document.querySelector('#report-text')
+            var inputCpf = document.querySelector('#patient-cpf2')
+
+            fetch('/doctor/upload/report', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({cpf: inputCpf.value, report: reportText.value})
+            }).then(data => {
+                data.json().then(status => {
+                    toastHeader.textContent = inputCpf.value
+                    toastBody.textContent = status.text
+                    
+                    toast.show()
+                    reportModal.hide()
+                })
+            })
+        }
+        
+        function sendSchedule() {
+            event.preventDefault()
+            
+            var inputDay = document.querySelector('#day')
+            var inputTime = document.querySelector('#time')
+
+            fetch('/doctor/schedule', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({day: inputDay.value, time: inputTime.value})
+            }).then(data => {
+                data.json().then(status => {
+                    toastHeader.textContent = 'Agenda'
+                    toastBody.textContent = status.text
+                    
+                    toast.show()
+                })
+            })
+        }
+        
+        function deleteDoctor() {
+            fetch('/doctor', {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            }).then(data => {
+                data.json().then(status => {
+                    if (status.code == 200)
+                        window.location.reload()
+                    else
+                        console.log(status)
+                })
+            })
+        }
+
+        function changeModalName(name) {
+            document.getElementById('staticBackdropLabel').innerText = name
+        }
+
+    </script>
+</body>
