@@ -2,11 +2,16 @@
 
 Bem-vindo ao ConnectHealth, sua plataforma para monitoramento e promoção da saúde.
 
-## Descrição
+## Utilização
+
+npm install
+npm start
+
+### Descrição
 
 O ConnectHealth é um sistema desenvolvido para ajudar os usuários a acompanhar e gerenciar sua saúde de maneira eficaz. Esta plataforma oferece funcionalidades para registro de informações de saúde, acompanhamento de métricas vitais, agendamento de consultas e muito mais.
 
-## Funcionalidades Principais
+#### Funcionalidades Principais
 
 - **Registro de Saúde:** Os usuários podem registrar informações como peso, altura, batimentos cardíacos, entre outros.
 - **Acompanhamento de Métricas:** A plataforma fornece gráficos e relatórios para visualizar o progresso e tendências de saúde ao longo do tempo.
