@@ -22,7 +22,7 @@ O ConnectHealth é um sistema desenvolvido para ajudar os usuários a acompanhar
 
 - HTML, Bootstrap e JavaScript.
 - Node.js.
-- Banco de dados para armazenamento de dados.
+- Low-DB.
 
 ## Autor
 
